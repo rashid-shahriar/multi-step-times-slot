@@ -9,82 +9,167 @@ document.addEventListener("DOMContentLoaded", function () {
   const workerSelect = document.getElementById("workerSelect");
   const timeSlotsDiv = document.querySelector(".time-slots");
   const daysClicked = document.querySelector(".days");
-  let currentStep = 0;
-  let selectedDate = ""; // Track the selected date
-
-  //get card-1 data
   const locationCard = document.getElementById("form-card-1");
-  //get second child of progress bar
   const locationProgress = document.getElementById("progress-step-1");
   const servicePrev = document.getElementById("servicePrev");
-
-  //get location from json
-  fetch("timeslots.json")
-    .then((response) => response.json())
-    .then((data) => {
-      const locations = data.locations || []; // Default to an empty array if locations is null
-
-      // If there is only one or zero locations, hide the location card and progress bar
-      if (locations.length <= 1) {
-        locationCard.style.display = "none";
-        locationProgress.style.display = "none";
-        servicePrev.style.display = "none";
-      }
-    });
+  let currentStep = 0;
+  let selectedDate = "";
 
   function updateForm() {
     formCards.forEach((card, index) => {
-      if (index === currentStep) {
-        card.classList.add("active");
-        progressbarSteps[index].classList.add("active");
-      } else {
-        card.classList.remove("active");
-        progressbarSteps[index].classList.remove("active");
-      }
+      const isActive = index === currentStep;
+      card.classList.toggle("active", isActive);
+      progressbarSteps[index].classList.toggle("active", isActive);
     });
 
-    const progressPercent = (currentStep / (formCards.length - 1)) * 100;
-    progressBar.style.width = progressPercent + "%";
+    progressBar.style.width = `${
+      (currentStep / (formCards.length - 1)) * 100
+    }%`;
   }
 
-  function nextStep() {
-    if (currentStep < formCards.length - 1) {
-      currentStep++;
-      updateForm();
-      if (currentStep === formCards.length - 1) {
-        showSelectedData(); // Show selected data in the confirmation step
-      }
-    }
-  }
-
-  function previousStep() {
-    if (currentStep > 0) {
-      currentStep--;
-      updateForm();
+  function moveStep(increment) {
+    currentStep = Math.max(
+      0,
+      Math.min(currentStep + increment, formCards.length - 1)
+    );
+    updateForm();
+    if (currentStep === formCards.length - 1) {
+      showSelectedData(); // Show selected data in the confirmation step
     }
   }
 
   form.addEventListener("click", function (event) {
     if (event.target.classList.contains("next")) {
-      nextStep();
+      moveStep(1);
     } else if (event.target.classList.contains("previous")) {
-      previousStep();
+      moveStep(-1);
     }
   });
 
-  updateForm();
+  function fetchData(url) {
+    return fetch(url).then((response) => response.json());
+  }
 
-  // Fetch the JSON data
-  fetch("timeslots.json")
-    .then((response) => response.json())
-    .then((data) => {
-      const locations = data.locations;
-      if (new Set(locations).size === 1) {
-        // All locations are the same, skip location step
-        currentStep++;
-        updateForm();
+  function populateSelect(element, items) {
+    items.forEach((item) => {
+      const option = document.createElement("option");
+      option.value = item;
+      option.text = item;
+      element.appendChild(option);
+    });
+  }
+
+  function resetSelectedData() {
+    daysClicked
+      .querySelectorAll(".selected")
+      .forEach((el) => el.classList.remove("selected"));
+    timeSlotsDiv.innerHTML = "";
+  }
+
+  // Function to handle the display of available time slots
+  function displayAvailableSlots(slots) {
+    timeSlotsDiv.innerHTML = slots
+      .map((slot) => {
+        const availableClass = slot.available
+          ? "available-slot"
+          : "unavailable-slot";
+        return `<div class="time-slot ${availableClass}" data-available="${slot.available}">
+                  ${slot.time}
+                </div>`;
+      })
+      .join("");
+
+    timeSlotsDiv.querySelectorAll(".available-slot").forEach((slotDiv) => {
+      slotDiv.addEventListener("click", function () {
+        timeSlotsDiv
+          .querySelectorAll(".time-slot")
+          .forEach((el) => el.classList.remove("selected-time"));
+        slotDiv.classList.add("selected-time");
+      });
+    });
+  }
+
+  function checkDateAvailability(workers) {
+    daysClicked.addEventListener("dateSelected", (event) => {
+      const { day, month, year } = event.detail;
+      selectedDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+        day
+      ).padStart(2, "0")}`;
+      const selectedWorkerId = workerSelect.value;
+      const selectedWorker = workers[selectedWorkerId];
+
+      if (selectedWorker && selectedWorker.schedule[selectedDate]) {
+        displayAvailableSlots(selectedWorker.schedule[selectedDate]);
       } else {
-        populateLocationSelect(locations);
+        timeSlotsDiv.innerHTML =
+          "<p>No time slots available for the selected date.</p>";
+      }
+    });
+  }
+
+  function getSelectedData() {
+    return {
+      location: locationSelect.value || "Not Selected",
+      service: serviceSelect.value || "Not Selected",
+      worker: workerSelect.value || "Not Selected",
+      date: selectedDate || "Not Selected",
+      time:
+        timeSlotsDiv.querySelector(".selected-time")?.textContent ||
+        "Not Selected",
+      customer: customerSelect.value || "Not Selected",
+    };
+  }
+
+  function showSelectedData() {
+    const selectedData = getSelectedData();
+    const showDiv = document.getElementById("show");
+    showDiv.style.display = "block";
+
+    fetchData("timeslots.json").then((data) => {
+      const locations = data.locations || [];
+      const locationHtml =
+        locations.length === 1
+          ? `<p>Selected Location: ${locations[0]}</p>`
+          : `<p>Selected Location: ${selectedData.location}</p>`;
+
+      showDiv.innerHTML = `
+        ${locationHtml}
+        <p>Selected Service: ${selectedData.service}</p>
+        <p>Selected Worker: ${selectedData.worker}</p>
+        <p>Selected Date: ${selectedData.date}</p>
+        <p>Selected Time: ${selectedData.time}</p>
+        <p>Customer Check: ${selectedData.customer}</p>
+      `;
+    });
+  }
+
+  // Function to populate worker select options based on the JSON data
+  function populateWorkerSelect(workers) {
+    for (const workerId in workers) {
+      const worker = workers[workerId];
+      const option = document.createElement("option");
+      option.value = workerId;
+      option.text = worker.name;
+      workerSelect.appendChild(option);
+    }
+
+    workerSelect.addEventListener("change", function () {
+      resetSelectedData();
+    });
+  }
+
+  // Fetch and initialize the form data from the JSON file
+  fetchData("timeslots.json")
+    .then((data) => {
+      const locations = data.locations || [];
+
+      if (locations.length <= 1) {
+        locationCard.style.display = "none";
+        locationProgress.style.display = "none";
+        servicePrev.style.display = "none";
+        moveStep(1); // Skip the location step
+      } else {
+        populateSelect(locationSelect, locations);
       }
 
       populateWorkerSelect(data.workers);
@@ -92,167 +177,13 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .catch((error) => console.error("Error fetching JSON data:", error));
 
-  // Function to populate the location select element
-  function populateLocationSelect(locations) {
-    locations.forEach((location) => {
-      const option = document.createElement("option");
-      option.value = location;
-      option.text = location;
-      locationSelect.appendChild(option);
+  updateForm();
+
+  // Show selected data when submitting the form
+  document
+    .querySelector('input[type="submit"].submit')
+    .addEventListener("click", function (event) {
+      event.preventDefault();
+      showSelectedData();
     });
-
-    locationSelect.addEventListener("change", function () {
-      console.log("Selected Location:", this.value);
-    });
-  }
-
-  // Function to populate the worker select element
-  function populateWorkerSelect(workers) {
-    // Loop through each worker and create an option element
-    for (const workerId in workers) {
-      const worker = workers[workerId];
-      const option = document.createElement("option");
-      option.value = workerId; // Use worker ID as the value
-      option.text = worker.name; // Use worker name as the text
-      workerSelect.appendChild(option);
-    }
-
-    // Add an event listener to handle worker selection
-    workerSelect.addEventListener("change", function () {
-      const selectedWorkerId = this.value;
-      console.log("Selected Worker ID:", selectedWorkerId);
-      resetSelectedData(); // Clear previously selected data
-    });
-  }
-
-  // Function to reset previously selected data
-  function resetSelectedData() {
-    // Clear previously selected date and time slots
-    daysClicked.querySelectorAll(".selected").forEach((el) => {
-      el.classList.remove("selected");
-    });
-    timeSlotsDiv.innerHTML = "";
-  }
-
-  // Function to check if the selected date has time slots
-  function checkDateAvailability(workers) {
-    // Ensure this script runs after the calendar script
-    daysClicked.addEventListener("dateSelected", (event) => {
-      const { day, month, year } = event.detail;
-
-      // Format the date to match the JSON key format (YYYY-MM-DD)
-      selectedDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(
-        day
-      ).padStart(2, "0")}`;
-
-      console.log(`Selected Date: ${selectedDate}`);
-
-      // Get the selected worker ID from the dropdown
-      const selectedWorkerId = workerSelect.value;
-
-      // Find the worker in the data
-      const selectedWorker = workers[selectedWorkerId];
-
-      if (selectedWorker && selectedWorker.schedule[selectedDate]) {
-        console.log(
-          `Time slots available for ${selectedDate} for ${selectedWorker.name}`
-        );
-
-        // Display all slots, highlighting available and unavailable
-        displayAvailableSlots(selectedWorker.schedule[selectedDate]);
-      } else {
-        console.log(`No time slots available for ${selectedDate}`);
-        timeSlotsDiv.innerHTML =
-          "<p>No time slots available for the selected date.</p>";
-      }
-    });
-  }
-
-  // Function to display all slots, highlighting available and unavailable slots
-  function displayAvailableSlots(slots) {
-    timeSlotsDiv.innerHTML = ""; // Clear previous slots
-
-    slots.forEach((slot) => {
-      const slotDiv = document.createElement("div");
-      slotDiv.textContent = slot.time;
-      // Add a class based on availability
-      if (slot.available) {
-        slotDiv.classList.add("available-slot");
-      } else {
-        slotDiv.classList.add("unavailable-slot");
-      }
-      // Optionally, make unavailable slots unclickable
-      slotDiv.classList.add("time-slot");
-      slotDiv.setAttribute("data-available", slot.available);
-
-      // Add event listener for clicking on the slot
-      slotDiv.addEventListener("click", function () {
-        if (slot.available) {
-          // Deselect other time slots
-          timeSlotsDiv.querySelectorAll(".time-slot").forEach((el) => {
-            el.classList.remove("selected-time");
-          });
-
-          // Mark this slot as selected
-          slotDiv.classList.add("selected-time");
-        }
-      });
-
-      timeSlotsDiv.appendChild(slotDiv);
-    });
-  }
-
-  // Function to get all the selected information to show
-  function getSelectedData() {
-    return {
-      location: locationSelect.value || "Not Selected",
-      service: serviceSelect.value || "Not Selected",
-      worker: workerSelect.value || "Not Selected",
-      date: selectedDate || "Not Selected",
-      time: timeSlotsDiv.querySelector(".selected-time")
-        ? timeSlotsDiv.querySelector(".selected-time").textContent
-        : "Not Selected",
-      customer: customerSelect.value || "Not Selected",
-    };
-  }
-
-  // Function to display selected data
-  function showSelectedData() {
-    const selectedData = getSelectedData();
-    const showDiv = document.getElementById("show");
-    showDiv.style.display = "block";
-
-    fetch("timeslots.json")
-      .then((response) => response.json())
-      .then((data) => {
-        const locations = data.locations;
-
-        console.log(locations.length);
-
-        if (locations.length > 1) {
-          // If there are multiple locations, display the selected location
-          locationHtml = `<p>Selected Location: ${selectedData.location}</p>`;
-        } else if (locations.length === 1) {
-          // If there is only one location, display it
-          locationHtml = `<p>Selected Location: ${locations[0]}</p>`;
-        }
-
-        // Update the content of the showDiv
-        showDiv.innerHTML = `
-    ${locationHtml}
-    <p>Selected Service: ${selectedData.service}</p>
-    <p>Selected Worker: ${selectedData.worker}</p>
-    <p>Selected Date: ${selectedData.date}</p>
-    <p>Selected Time: ${selectedData.time}</p>
-    <p>Customer Check: ${selectedData.customer}</p>
-  `;
-      });
-  }
-
-  // Add event listener to submit button
-  const submitBtn = document.querySelector('input[type="submit"].submit');
-  submitBtn.addEventListener("click", function (event) {
-    event.preventDefault(); // Prevent the form from submitting
-    showSelectedData();
-  });
 });

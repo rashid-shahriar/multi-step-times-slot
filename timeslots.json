@@ -1,5 +1,5 @@
 {
-  "locations": ["New York"],
+  "locations": ["New York", "San Francisco"],
   "workers": {
     "1": {
       "name": "John Doe",
