@@ -12,6 +12,26 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentStep = 0;
   let selectedDate = ""; // Track the selected date
 
+  //get card-1 data
+  const locationCard = document.getElementById("form-card-1");
+  //get second child of progress bar
+  const locationProgress = document.getElementById("progress-step-1");
+  const servicePrev = document.getElementById("servicePrev");
+
+  //get location from json
+  fetch("timeslots.json")
+    .then((response) => response.json())
+    .then((data) => {
+      const locations = data.locations || []; // Default to an empty array if locations is null
+
+      // If there is only one or zero locations, hide the location card and progress bar
+      if (locations.length <= 1) {
+        locationCard.style.display = "none";
+        locationProgress.style.display = "none";
+        servicePrev.style.display = "none";
+      }
+    });
+
   function updateForm() {
     formCards.forEach((card, index) => {
       if (index === currentStep) {
@@ -58,10 +78,33 @@ document.addEventListener("DOMContentLoaded", function () {
   fetch("timeslots.json")
     .then((response) => response.json())
     .then((data) => {
+      const locations = data.locations;
+      if (new Set(locations).size === 1) {
+        // All locations are the same, skip location step
+        currentStep++;
+        updateForm();
+      } else {
+        populateLocationSelect(locations);
+      }
+
       populateWorkerSelect(data.workers);
       checkDateAvailability(data.workers);
     })
     .catch((error) => console.error("Error fetching JSON data:", error));
+
+  // Function to populate the location select element
+  function populateLocationSelect(locations) {
+    locations.forEach((location) => {
+      const option = document.createElement("option");
+      option.value = location;
+      option.text = location;
+      locationSelect.appendChild(option);
+    });
+
+    locationSelect.addEventListener("change", function () {
+      console.log("Selected Location:", this.value);
+    });
+  }
 
   // Function to populate the worker select element
   function populateWorkerSelect(workers) {
@@ -173,20 +216,37 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
+  // Function to display selected data
   function showSelectedData() {
     const selectedData = getSelectedData();
-
     const showDiv = document.getElementById("show");
     showDiv.style.display = "block";
 
-    showDiv.innerHTML = `
-      <p>Selected Location: ${selectedData.location}</p>
-      <p>Selected Service: ${selectedData.service}</p>
-      <p>Selected Worker: ${selectedData.worker}</p>
-      <p>Selected Date: ${selectedData.date}</p>
-      <p>Selected Time: ${selectedData.time}</p>
-      <p>Customer Check: ${selectedData.customer}</p>
-    `;
+    fetch("timeslots.json")
+      .then((response) => response.json())
+      .then((data) => {
+        const locations = data.locations;
+
+        console.log(locations.length);
+
+        if (locations.length > 1) {
+          // If there are multiple locations, display the selected location
+          locationHtml = `<p>Selected Location: ${selectedData.location}</p>`;
+        } else if (locations.length === 1) {
+          // If there is only one location, display it
+          locationHtml = `<p>Selected Location: ${locations[0]}</p>`;
+        }
+
+        // Update the content of the showDiv
+        showDiv.innerHTML = `
+    ${locationHtml}
+    <p>Selected Service: ${selectedData.service}</p>
+    <p>Selected Worker: ${selectedData.worker}</p>
+    <p>Selected Date: ${selectedData.date}</p>
+    <p>Selected Time: ${selectedData.time}</p>
+    <p>Customer Check: ${selectedData.customer}</p>
+  `;
+      });
   }
 
   // Add event listener to submit button

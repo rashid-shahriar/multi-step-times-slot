@@ -1,4 +1,5 @@
 {
+  "locations": ["New York"],
   "workers": {
     "1": {
       "name": "John Doe",
