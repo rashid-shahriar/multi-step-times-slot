@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Step Form with FullCalendar</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <!-- FullCalendar CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.css" />
+    <!-- jQuery, Moment.js, FullCalendar JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
+
+    <style>
+        /* Existing styles */
+        .form-step {
+            display: none;
+        }
+
+        .form-step-active {
+            display: block;
+        }
+
+        .available-date {
+            background-color: #d4edda;
+        }
+
+        .unavailable-date {
+            background-color: #f8d7da;
+        }
+
+        .available {
+            color: #28a745;
+        }
+
+        .unavailable {
+            color: #dc3545;
+        }
+
+        .selected {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <form id="multiStepForm">
+            <!-- Step 1: Worker selection -->
+            <div class="form-step form-step-active">
+                <h2>Select a Worker</h2>
+                <div>
+                    <input type="radio" id="workerJohn" name="worker" value="workerone" required>
+                    <label for="workerJohn">John</label>
+                </div>
+                <div>
+                    <input type="radio" id="workerJane" name="worker" value="workertwo">
+                    <label for="workerJane">Jane</label>
+                </div>
+                <button type="button" class="next-step btn btn-primary">Next</button>
+            </div>
+
+            <!-- Step 2: Date and Time selection -->
+            <div class="form-step">
+                <h2>Select a Date and Time</h2>
+                <div id="calendar"></div>
+                <div class="time-slots"></div>
+                <button type="button" class="prev-step btn btn-secondary">Previous</button>
+                <button type="button" class="next-step btn btn-primary" id="nextStepBtn"
+                    style="display: none;">Next</button>
+            </div>
+
+            <!-- Step 3: Phone Number -->
+            <div class="form-step">
+                <h2>Enter Your Phone Number</h2>
+                <input type="text" id="phone" name="phone" required>
+                <button type="button" class="prev-step btn btn-secondary">Previous</button>
+                <button type="button" class="next-step btn btn-primary">Next</button>
+            </div>
+
+            <!-- Step 4: Review and Confirmation -->
+            <div class="form-step">
+                <h2>Review Your Booking</h2>
+                <p>Name: <span id="summaryName"></span></p>
+                <p>Date: <span id="summaryDate"></span></p>
+                <p>Time Slot: <span id="summaryTimeSlot"></span></p>
+                <p>Phone Number: <span id="summaryPhone"></span></p>
+                <button type="button" class="prev-step btn btn-secondary">Previous</button>
+                <button type="submit" class="btn btn-success">Confirm Booking</button>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- Include your JavaScript file -->
+    <script src="script.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#calendar').fullCalendar();
+        });
+    </script>
+
+</body>
+
+</html>

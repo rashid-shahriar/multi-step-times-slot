@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="multi-step-form.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+</head>
+
+<body>
+
+    <div class="container">
+        <form action="" id="multiStepForm">
+
+            <ul id="progressbar">
+                <li class="active">Select Location</li>
+                <li>Select Service</li>
+                <li>Select Worker</li>
+                <li>Select Date and Time</li>
+                <li>Check Customer</li>
+                <li>Confirmation</li>
+            </ul>
+
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                    aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+
+            <div class="form-card">
+                <h2 class="fs-title">Select Location</h2>
+                <div class="form-group">
+                    <select class="form-control" id="locationSelect">
+                        <option value="">Select a Location</option>
+                        <option value="New York">New York</option>
+                        <option value="Los Angeles">Los Angeles</option>
+                        <option value="Chicago">Chicago</option>
+                    </select>
+                </div>
+                <input type="button" name="next" class="next action-button" value="Next" />
+            </div>
+
+            <div class="form-card">
+                <h2 class="fs-title">Select Service</h2>
+                <div class="form-group">
+                    <select class="form-control" id="serviceSelect">
+                        <option value="">Select a Service</option>
+                        <option value="Service 1">Service 1</option>
+                        <option value="Service 2">Service 2</option>
+                        <option value="Service 3">Service 3</option>
+                    </select>
+                </div>
+                <input type="button" name="next" class="next action-button" value="Next" />
+                <input type="button" name="previous" class="previous action-button" value="Previous" />
+            </div>
+
+            <div class="form-card">
+                <h2 class="fs-title">Select Worker</h2>
+                <div class="form-group">
+                    <select class="form-control" id="workerSelect">
+                        <option value="">Select a Worker</option>
+                    </select>
+                </div>
+                <input type="button" name="next" class="next action-button" value="Next" />
+                <input type="button" name="previous" class="previous action-button" value="Previous" />
+            </div>
+
+            <div class="form-card">
+                <h2 class="fs-title">Select Date and Time</h2>
+                <div class="form-group">
+                    <header>
+                        <p class="current-date"></p>
+                        <div class="icons">
+                            <span id="prev" class="material-symbols-rounded">chevron_left</span>
+                            <span id="next" class="material-symbols-rounded">chevron_right</span>
+                        </div>
+                    </header>
+                    <div class="calendar">
+                        <ul class="weeks">
+                            <li>Sun</li>
+                            <li>Mon</li>
+                            <li>Tue</li>
+                            <li>Wed</li>
+                            <li>Thu</li>
+                            <li>Fri</li>
+                            <li>Sat</li>
+                        </ul>
+                        <ul class="days"></ul>
+                    </div>
+                    <div class="time-slots"></div>
+                </div>
+                <input type="button" name="next" class="next action-button" value="Next" />
+                <input type="button" name="previous" class="previous action-button" value="Previous" />
+            </div>
+
+            <div class="form-card">
+                <h2 class="fs-title">Check Customer</h2>
+                <div class="form-group">
+                    <select class="form-control" id="customerSelect">
+                        <option value="">Select an Option</option>
+                        <option value="New Customer">New Customer</option>
+                        <option value="Existing Customer">Existing Customer</option>
+                    </select>
+                </div>
+                <input type="button" name="next" class="next action-button" value="Next" />
+                <input type="button" name="previous" class="previous action-button" value="Previous" />
+            </div>
+
+            <div class="form-card">
+                <h2 class="fs-title">Confirmation</h2>
+                <h5>Show all the information</h5>
+                <div id="show"></div>
+                <input type="button" name="previous" class="previous action-button" value="Previous" />
+                <input type="submit" name="submit" class="submit action-button" value="Submit" />
+            </div>
+
+        </form>
+    </div>
+
+    <script src="multi-step-form.js"></script>
+    <script src="calendar.js"></script>
+
+</body>
+
+</html>
