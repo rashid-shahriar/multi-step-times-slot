@@ -1,44 +1,71 @@
 {
-  "locations": ["New York", "San Francisco"],
-  "workers": {
-    "1": {
-      "name": "John Doe",
-      "schedule": {
-        "2024-08-13": [
-          { "time": "09:00am - 11am", "available": true },
-          { "time": "11:00am - 01pm", "available": false },
-          { "time": "02:00pm - 04pm", "available": true }
-        ],
-        "2024-08-14": [
-          { "time": "09:00am - 11am", "available": true },
-          { "time": "11:00am - 01pm", "available": true },
-          { "time": "02:00pm - 04pm", "available": true }
-        ],
-        "2024-08-15": [
-          { "time": "09:00am - 11am", "available": false },
-          { "time": "11:00am - 01pm", "available": false },
-          { "time": "02:00pm - 04pm", "available": false }
-        ]
+  "locations": {
+    "New York": {
+      "workers": {
+        "1": {
+          "name": "John Doe",
+          "schedule": {
+            "2024-08-13": [
+              { "time": "09:00am - 11am", "available": true },
+              { "time": "11:00am - 01pm", "available": false },
+              { "time": "02:00pm - 04pm", "available": true }
+            ],
+            "2024-08-14": [
+              { "time": "09:00am - 11am", "available": true },
+              { "time": "11:00am - 01pm", "available": true },
+              { "time": "02:00pm - 04pm", "available": true }
+            ],
+            "2024-08-15": [
+              { "time": "09:00am - 11am", "available": false },
+              { "time": "11:00am - 01pm", "available": false },
+              { "time": "02:00pm - 04pm", "available": false }
+            ]
+          }
+        },
+        "2": {
+          "name": "Jane Doe",
+          "schedule": {
+            "2024-08-13": [
+              { "time": "09:00am - 11am", "available": true },
+              { "time": "11:00am - 01pm", "available": true },
+              { "time": "02:00pm - 04pm", "available": true }
+            ],
+            "2024-08-14": [
+              { "time": "09:00am - 11am", "available": false },
+              { "time": "11:00am - 01pm", "available": false },
+              { "time": "02:00pm - 04pm", "available": false }
+            ],
+            "2024-08-15": [
+              { "time": "09:00am - 11am", "available": true },
+              { "time": "11:00am - 01pm", "available": false },
+              { "time": "02:00pm - 04pm", "available": true }
+            ]
+          }
+        }
       }
     },
-    "2": {
-      "name": "Jane Doe",
-      "schedule": {
-        "2024-08-13": [
-          { "time": "09:00am - 11am", "available": true },
-          { "time": "11:00am - 01pm", "available": true },
-          { "time": "02:00pm - 04pm", "available": true }
-        ],
-        "2024-08-14": [
-          { "time": "09:00am - 11am", "available": false },
-          { "time": "11:00am - 01pm", "available": false },
-          { "time": "02:00pm - 04pm", "available": false }
-        ],
-        "2024-08-15": [
-          { "time": "09:00am - 11am", "available": true },
-          { "time": "11:00am - 01pm", "available": false },
-          { "time": "02:00pm - 04pm", "available": true }
-        ]
+    "San Francisco": {
+      "workers": {
+        "3": {
+          "name": "Danny Smith",
+          "schedule": {
+            "2024-08-13": [
+              { "time": "09:00am - 11am", "available": true },
+              { "time": "11:00am - 01pm", "available": true },
+              { "time": "02:00pm - 04pm", "available": true }
+            ],
+            "2024-08-14": [
+              { "time": "09:00am - 11am", "available": false },
+              { "time": "11:00am - 01pm", "available": false },
+              { "time": "02:00pm - 04pm", "available": false }
+            ],
+            "2024-08-15": [
+              { "time": "09:00am - 11am", "available": true },
+              { "time": "11:00am - 01pm", "available": false },
+              { "time": "02:00pm - 04pm", "available": true }
+            ]
+          }
+        }
       }
     }
   }

@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const servicePrev = document.getElementById("servicePrev");
   let currentStep = 0;
   let selectedDate = "";
+  let workersData = {}; // Store workers data by location
 
   function updateForm() {
     formCards.forEach((card, index) => {
@@ -51,6 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function populateSelect(element, items) {
+    element.innerHTML = `<option value="">Select an option</option>`;
     items.forEach((item) => {
       const option = document.createElement("option");
       option.value = item;
@@ -145,6 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Function to populate worker select options based on the JSON data
   function populateWorkerSelect(workers) {
+    workerSelect.innerHTML = `<option value="">Select a Worker</option>`;
     for (const workerId in workers) {
       const worker = workers[workerId];
       const option = document.createElement("option");
@@ -155,13 +158,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     workerSelect.addEventListener("change", function () {
       resetSelectedData();
+      checkDateAvailability(workers);
     });
+  }
+
+  // Function to update the workers list based on the selected location
+  function updateWorkersByLocation(location) {
+    if (workersData[location]) {
+      populateWorkerSelect(workersData[location].workers);
+    } else {
+      workerSelect.innerHTML = `<option value="">No Workers Available</option>`;
+    }
   }
 
   // Fetch and initialize the form data from the JSON file
   fetchData("timeslots.json")
     .then((data) => {
-      const locations = data.locations || [];
+      const locations = Object.keys(data.locations);
 
       if (locations.length <= 1) {
         locationCard.style.display = "none";
@@ -172,8 +185,14 @@ document.addEventListener("DOMContentLoaded", function () {
         populateSelect(locationSelect, locations);
       }
 
-      populateWorkerSelect(data.workers);
-      checkDateAvailability(data.workers);
+      workersData = data.locations; // Store the workers by location
+
+      locationSelect.addEventListener("change", function () {
+        resetSelectedData();
+        updateWorkersByLocation(locationSelect.value);
+      });
+
+      checkDateAvailability(workersData[locationSelect.value]?.workers);
     })
     .catch((error) => console.error("Error fetching JSON data:", error));
 
